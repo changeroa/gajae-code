@@ -249,6 +249,33 @@ describe("system Handlebars prompt templates", () => {
 			expect(systemPrompt[1].indexOf("</workspace-tree>")).toBeLessThan(systemPrompt[1].indexOf("Today is "));
 		});
 	});
+	test("buildSystemPrompt wires SYSTEM.md customization without replacing the base prompt", async () => {
+		await withTempDir(async dir => {
+			await fs.mkdir(path.join(dir, ".gjc"), { recursive: true });
+			await fs.writeFile(path.join(dir, ".gjc", "SYSTEM.md"), "Project system sentinel.");
+
+			const { systemPrompt } = await buildSystemPrompt({
+				cwd: dir,
+				contextFiles: [],
+				skills: [],
+				rules: [],
+				toolNames: ["read"],
+				workspaceTree: {
+					rootPath: dir,
+					rendered: "",
+					truncated: false,
+					totalLines: 0,
+					agentsMdFiles: [],
+				},
+			});
+
+			expect(systemPrompt).toHaveLength(2);
+			expect(systemPrompt[0]).toContain("<gajae-code-system-prompt>");
+			expect(systemPrompt[0]).not.toContain("Project system sentinel.");
+			expect(systemPrompt[1]).toContain("<system-prompt-customization>");
+			expect(systemPrompt[1]).toContain("Project system sentinel.");
+		});
+	});
 	test("buildSystemPrompt renders workspace tree after directory context in project prompt", async () => {
 		await withTempDir(async dir => {
 			const { systemPrompt } = await buildSystemPrompt({

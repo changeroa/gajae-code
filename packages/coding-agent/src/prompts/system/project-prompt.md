@@ -1,4 +1,10 @@
 [PROJECT]
+{{#if systemPromptCustomization}}
+<system-prompt-customization>
+{{systemPromptCustomization}}
+</system-prompt-customization>
+
+{{/if}}
 <workstation>
 {{#list environment prefix="- " join="\n"}}{{label}}: {{value}}{{/list}}
 </workstation>
